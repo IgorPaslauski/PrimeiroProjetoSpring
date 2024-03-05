@@ -1,5 +1,2 @@
 com\example\cardapio\CardapioApplication.class
 com\example\cardapio\ServletInitializer.class
-com\example\cardapio\controller\FoodController.class
-com\example\cardapio\Food\Food.class
-com\example\cardapio\Food\FoodRepository.class
