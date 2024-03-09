@@ -19,15 +19,17 @@ public class FoodController {
     private FoodRepository repository;
 
     @PostMapping
-    public void create(@RequestBody FoodRequestDTO data){
+    public void create(@RequestBody FoodRequestDTO data)
+    {
         Food foodData = new Food(data);
         repository.save(foodData);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> delete(@RequestBody long id){
+    public ResponseEntity<String> delete(@RequestBody long id)
+    {
         Optional<Food> food = repository.findById(id);
-        ;
+
         if (food.isEmpty())
         {
             return new ResponseEntity<>("id não localizado, registro não exlcuido!", HttpStatus.BAD_REQUEST);
@@ -39,9 +41,8 @@ public class FoodController {
     }
 
     @GetMapping
-    public List<FoodResponseDTO> getAll(){
-        List<FoodResponseDTO> lista = repository.findAll().stream().map(FoodResponseDTO::new).toList();
-
-        return lista;
+    public List<FoodResponseDTO> getAll()
+    {
+        return repository.findAll().stream().map(FoodResponseDTO::new).toList();
     }
 }
