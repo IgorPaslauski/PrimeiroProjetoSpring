@@ -4,45 +4,46 @@ import com.example.cardapio.food.Food;
 import com.example.cardapio.food.FoodRepository;
 import com.example.cardapio.food.FoodRequestDTO;
 import com.example.cardapio.food.FoodResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
 @RestController
-@RequestMapping("food")
+@RequestMapping("/food")
 public class FoodController {
-    @Autowired
-    private FoodRepository repository;
+    private final FoodRepository repository;
 
-    @PostMapping
-    public void create(@RequestBody FoodRequestDTO data)
-    {
-        Food foodData = new Food(data);
-        repository.save(foodData);
+    public FoodController(FoodRepository repository) {
+        this.repository = repository;
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> delete(@RequestBody long id)
-    {
+    @PostMapping
+    public ResponseEntity<String> create(@RequestBody FoodRequestDTO data) {
+        try {
+            Food foodData = new Food(data);
+            repository.save(foodData);
+            return new ResponseEntity<>("Registro criado com sucesso!", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erro ao criar o registro", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable long id) {
         Optional<Food> food = repository.findById(id);
 
-        if (food.isEmpty())
-        {
-            return new ResponseEntity<>("id não localizado, registro não exlcuido!", HttpStatus.BAD_REQUEST);
+        if (food.isPresent()) {
+            repository.delete(food.get());
+            return new ResponseEntity<>("Registro removido com sucesso!", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("ID não localizado, registro não excluído!", HttpStatus.BAD_REQUEST);
         }
-
-        repository.delete(food.get());
-
-        return new ResponseEntity<>("Registro removido com sucesso!", HttpStatus.OK);
     }
 
     @GetMapping
-    public List<FoodResponseDTO> getAll()
-    {
+    public List<FoodResponseDTO> getAll() {
         return repository.findAll().stream().map(FoodResponseDTO::new).toList();
     }
 }
