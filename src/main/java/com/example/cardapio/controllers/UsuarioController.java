@@ -54,4 +54,46 @@ public class UsuarioController {
             return new ResponseEntity<>("Falha ao remover o usuario!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> update(@PathVariable Long id, @RequestBody UsuarioRequestDTO data) {
+        try {
+            Optional<Usuario> usuario = repository.findById(id);
+
+            if (usuario.isEmpty()) {
+                return new ResponseEntity<>("Não foi localizado usuario com o id: " + id, HttpStatus.NOT_FOUND);
+            }
+
+            Usuario user = usuario.get();
+            user.setUsuario(data.usuario());
+            user.setSenha(data.senha());
+            repository.save(user);
+
+            return new ResponseEntity<>("Usuario atualizado com sucesso!", HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>("Falha ao atualizar o usuario!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
+        Optional<Usuario> usuario = repository.findById(id);
+
+        if (usuario.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(new UsuarioResponseDTO(usuario.get()), HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioResponseDTO> login(@RequestBody UsuarioRequestDTO data) {
+        Optional<Usuario> usuario = repository.findUsuarioByUsuarioAndSenha(data.usuario(), data.senha());
+
+        if (usuario.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(new UsuarioResponseDTO(usuario.get()), HttpStatus.OK);
+    }
 }
